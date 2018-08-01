@@ -1,13 +1,14 @@
+package producer_consumer.semaphore;
+
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Semaphore;
 
-public class CPWithSemaphore {
+public class PCSemaphore {
     static final int MAX_SIZE = 9;
-    private static List list = new LinkedList();
-    private static Semaphore semaphoreConsumer = new Semaphore(0);
-    private static Semaphore semaphoreProducer = new Semaphore(1);
+    private static List<Integer> list = new LinkedList<>();
+    private static Semaphore semaphore = new Semaphore(1, true);
 
     public static void main(String[] args) throws InterruptedException {
         Thread threadProducer = new Thread(new Runnable() {
@@ -43,22 +44,22 @@ public class CPWithSemaphore {
     private static void producer() throws InterruptedException {
         Random r = new Random();
         while (true) {
-            if (list.size() == MAX_SIZE || list.size() == r.nextInt(10)) {
-                semaphoreProducer.acquire();
-                semaphoreConsumer.release(1);
+            semaphore.acquire();
+            if (list.size() < MAX_SIZE) {
+                System.out.println("Added " + list.add(r.nextInt(10)) + "|size:" + list.size());
             }
-            else System.out.println("Added " + list.add(r.nextInt(10)));
+            semaphore.release();
         }
     }
 
     private static void consumer() throws InterruptedException {
         Random r = new Random();
         while (true) {
-            if (list.isEmpty() || list.size() == r.nextInt(10)) {
-                semaphoreConsumer.acquire();
-                semaphoreProducer.release(1);
+            semaphore.acquire();
+            if (!list.isEmpty()) {
+                System.out.println("Value: " + list.remove(list.size() - 1) + "|size: " + list.size());
             }
-            else System.out.println("Value: " + list.remove(list.size() - 1) + ", size: " + list.size());
+            semaphore.release();
         }
     }
 
