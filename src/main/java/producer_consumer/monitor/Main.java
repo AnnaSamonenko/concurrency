@@ -4,30 +4,20 @@ import java.util.Random;
 
 public class Main {
 
-    static Monitor monitor = new Monitor();
+    private static Monitor monitor = new Monitor();
 
     public static void main(String[] args) throws InterruptedException {
         Thread threadProducer = new Thread(new Runnable() {
             @Override
             public void run() {
-                try {
-                    producer();
-                } catch (InterruptedException e) {
-                    System.err.println(e.getMessage());
-                }
-
+                producer();
             }
         });
 
         Thread threadConsumer = new Thread(new Runnable() {
             @Override
             public void run() {
-                try {
-                    consumer();
-                } catch (InterruptedException e) {
-                    System.err.println(e.getMessage());
-                }
-
+                consumer();
             }
         });
         threadProducer.start();
@@ -38,14 +28,14 @@ public class Main {
 
     }
 
-    private static void producer() throws InterruptedException {
+    private static void producer() {
         Random r = new Random();
         while (true) {
             monitor.add(r.nextInt(100));
         }
     }
 
-    private static void consumer() throws InterruptedException {
+    private static void consumer() {
         while (true) {
             monitor.remove();
         }
