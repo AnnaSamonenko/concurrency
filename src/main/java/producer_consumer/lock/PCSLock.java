@@ -1,10 +1,14 @@
-package producer_consumer.monitor;
+package producer_consumer.lock;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Random;
+import java.util.concurrent.Semaphore;
 
-public class Main {
-
-    static Monitor monitor = new Monitor();
+public class PCSLock {
+    static final int MAX_SIZE = 9;
+    private static List<Integer> list = new LinkedList<>();
+    private static Semaphore semaphore = new Semaphore(1, true);
 
     public static void main(String[] args) throws InterruptedException {
         Thread threadProducer = new Thread(new Runnable() {
@@ -35,19 +39,27 @@ public class Main {
 
         threadProducer.join();
         threadConsumer.join();
-
     }
 
     private static void producer() throws InterruptedException {
         Random r = new Random();
         while (true) {
-            monitor.add(r.nextInt(100));
+            semaphore.acquire();
+            if (list.size() < MAX_SIZE) {
+                System.out.println("Added " + list.add(r.nextInt(10)) + "|size:" + list.size());
+            }
+            semaphore.release();
         }
     }
 
     private static void consumer() throws InterruptedException {
+        Random r = new Random();
         while (true) {
-            monitor.remove();
+            semaphore.acquire();
+            if (!list.isEmpty()) {
+                System.out.println("Value: " + list.remove(list.size() - 1) + "|size: " + list.size());
+            }
+            semaphore.release();
         }
     }
 

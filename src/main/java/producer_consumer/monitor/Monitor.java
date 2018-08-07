@@ -1,20 +1,26 @@
 package producer_consumer.monitor;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public class Monitor {
 
-    private List<Integer> list = new ArrayList<>();
+    private List<Integer> list = new LinkedList<>();
 
-    public synchronized void add(int value) {
+    public void add(int value) {
         if (list.size() < 10)
-            System.out.println("ADD: Value: " + list.add(value) + ", size:" + list.size());
+            synchronized (list) {
+                System.out.println("ADD: Value: " + list.add(value) + ", size:" + list.size());
+            }
+
     }
 
-    public synchronized void remove() {
+    public void remove() {
         if (list.size() > 1)
-            System.out.println("REMOVE: Value: " + list.remove(list.size() - 1) + ", size:" + list.size());
+            synchronized (list) {
+                System.out.println("REMOVE: Value: " + list.remove(list.size() - 1) + ", size:" + list.size());
+            }
+
     }
 
 }
