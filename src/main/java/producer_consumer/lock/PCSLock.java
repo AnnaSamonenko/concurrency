@@ -3,35 +3,26 @@ package producer_consumer.lock;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.Semaphore;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class PCSLock {
     static final int MAX_SIZE = 9;
     private static List<Integer> list = new LinkedList<>();
-    private static Semaphore semaphore = new Semaphore(1, true);
+    private static Lock lock = new ReentrantLock(true);
 
     public static void main(String[] args) throws InterruptedException {
         Thread threadProducer = new Thread(new Runnable() {
             @Override
             public void run() {
-                try {
-                    producer();
-                } catch (InterruptedException e) {
-                    System.err.println(e.getMessage());
-                }
-
+                producer();
             }
         });
 
         Thread threadConsumer = new Thread(new Runnable() {
             @Override
             public void run() {
-                try {
-                    consumer();
-                } catch (InterruptedException e) {
-                    System.err.println(e.getMessage());
-                }
-
+                consumer();
             }
         });
         threadProducer.start();
@@ -41,25 +32,31 @@ public class PCSLock {
         threadConsumer.join();
     }
 
-    private static void producer() throws InterruptedException {
+    private static void producer() {
         Random r = new Random();
         while (true) {
-            semaphore.acquire();
-            if (list.size() < MAX_SIZE) {
-                System.out.println("Added " + list.add(r.nextInt(10)) + "|size:" + list.size());
+            lock.lock();
+            try {
+                if (list.size() < MAX_SIZE) {
+                    System.out.println("Added " + list.add(r.nextInt(10)) + "|size:" + list.size());
+                }
+            } finally {
+                lock.unlock();
             }
-            semaphore.release();
         }
     }
 
-    private static void consumer() throws InterruptedException {
+    private static void consumer() {
         Random r = new Random();
         while (true) {
-            semaphore.acquire();
-            if (!list.isEmpty()) {
-                System.out.println("Value: " + list.remove(list.size() - 1) + "|size: " + list.size());
+            lock.lock();
+            try {
+                if (!list.isEmpty()) {
+                    System.out.println("Value: " + list.remove(list.size() - 1) + "|size: " + list.size());
+                }
+            } finally {
+                lock.unlock();
             }
-            semaphore.release();
         }
     }
 
