@@ -4,7 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
-public class PCSemaphore {
+public class PCMonitor {
     static final int MAX_SIZE = 9;
     private static List<Integer> list = new LinkedList<>();
 
