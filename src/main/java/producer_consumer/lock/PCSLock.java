@@ -3,28 +3,20 @@ package producer_consumer.lock;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class PCSLock {
-    static final int MAX_SIZE = 9;
+    private static final int MAX_SIZE = 9;
     private static List<Integer> list = new LinkedList<>();
-    private static Lock lock = new ReentrantLock(true);
+    private static Lock lock = new ReentrantLock();
+    private static final Random random = new Random();
 
     public static void main(String[] args) throws InterruptedException {
-        Thread threadProducer = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                producer();
-            }
-        });
+        Thread threadProducer = new Thread(PCSLock::producer);
+        Thread threadConsumer = new Thread(PCSLock::consumer);
 
-        Thread threadConsumer = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                consumer();
-            }
-        });
         threadProducer.start();
         threadConsumer.start();
 
@@ -33,12 +25,11 @@ public class PCSLock {
     }
 
     private static void producer() {
-        Random r = new Random();
         while (true) {
             lock.lock();
             try {
                 if (list.size() < MAX_SIZE) {
-                    System.out.println("Added " + list.add(r.nextInt(10)) + "|size:" + list.size());
+                    System.out.println("Added " + list.add(random.nextInt(10)) + "|size:" + list.size());
                 }
             } finally {
                 lock.unlock();
@@ -47,7 +38,6 @@ public class PCSLock {
     }
 
     private static void consumer() {
-        Random r = new Random();
         while (true) {
             lock.lock();
             try {
